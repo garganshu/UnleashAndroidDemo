@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">UnsplashCompose</string>
+    <string name="app_name">UnleashAndroidDemo</string>
     <string name="flag_disabled">Feature Flag Disabled</string>
     <string name="license_info">License : <b>%s</b></string>
     <string name="stars">Stars : <b>%s</b></string>

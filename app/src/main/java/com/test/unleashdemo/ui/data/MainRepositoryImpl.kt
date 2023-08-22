@@ -14,8 +14,4 @@ class MainRepositoryImpl(
             mapper.toGithubDataList(dataModelList = it)
         }
     }
-
-    override suspend fun isDetailToggleEnabled(): Boolean {
-        return remoteDataStore.isDetailToggleEnabled()
-    }
 }

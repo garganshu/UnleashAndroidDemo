@@ -4,9 +4,12 @@ import android.app.DownloadManager
 import android.content.Context
 import com.readystatesoftware.chuck.ChuckInterceptor
 import com.test.unleashdemo.BuildConfig
+import com.test.unleashdemo.R
 import com.test.unleashdemo.ui.data.*
+import com.test.unleashdemo.ui.domain.FeatureToggleRepository
 import com.test.unleashdemo.ui.domain.ResponseMapper
 import com.test.unleashdemo.ui.domain.MainRepository
+import com.test.unleashdemo.ui.domain.MainUseCase
 import com.test.unleashdemo.ui.presentation.MainViewModel
 import io.getunleash.UnleashClient
 import io.getunleash.UnleashConfig
@@ -29,12 +32,15 @@ val appModule = module {
         getApiService(get())
     }
     single {
-        getUnleashClient()
+        getUnleashClient(get())
     }
     single {
         getDownloadManager(get())
     }
-    factory<MainRemoteDataStore> { MainRemoteDataStoreImpl(get(), get()) }
+    factory<MainRemoteDataStore> { MainRemoteDataStoreImpl(get()) }
+    factory<FeatureToggleRepository> { FeatureToggleRepositoryImpl(get()) }
+    factory<FeatureToggleRemoteDataStore> { FeatureToggleRemoteDataStoreImpl(get()) }
+    factory<MainUseCase> { MainUseCaseImpl(get(), get()) }
     factory<MainRepository> { MainRepositoryImpl(get(), get()) }
     factory<ResponseMapper> { ResponseMapperImpl() }
     viewModel { MainViewModel(get()) }
@@ -57,13 +63,14 @@ private fun getApiService(retrofit: Retrofit): ApiService {
     return retrofit.create(ApiService::class.java)
 }
 
-private fun getUnleashClient(): UnleashClient {
-    val context = UnleashContext.newBuilder()
-        .appName("UnleashDemo")
+private fun getUnleashClient(appContext: Context): UnleashClient {
+    val appName = appContext.getString(R.string.app_name)
+    val unleashContext = UnleashContext.newBuilder()
+        .appName(appName)
         .build()
 
-    val config = UnleashConfig.newBuilder()
-        .appName("UnleashDemo")
+    val unleashConfig = UnleashConfig.newBuilder()
+        .appName(appName)
         .enableMetrics()
         .proxyUrl(BuildConfig.UNLEASH_API_URL)
         .clientKey(BuildConfig.UNLEASH_CLIENT_KEY)
@@ -71,7 +78,10 @@ private fun getUnleashClient(): UnleashClient {
         .metricsInterval(5000)
         .build()
 
-    return UnleashClient.newBuilder().unleashConfig(config).unleashContext(context).build()
+    return UnleashClient.newBuilder()
+        .unleashConfig(unleashConfig)
+        .unleashContext(unleashContext)
+        .build()
 }
 
 private fun getDownloadManager(context: Context): DownloadManager {

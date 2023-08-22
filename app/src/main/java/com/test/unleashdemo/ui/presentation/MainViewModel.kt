@@ -3,7 +3,7 @@ package com.test.unleashdemo.ui.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.test.unleashdemo.ui.data.GithubData
-import com.test.unleashdemo.ui.domain.MainRepository
+import com.test.unleashdemo.ui.domain.MainUseCase
 import com.test.unleashdemo.utils.Response
 import com.test.unleashdemo.utils.ViewState
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class MainViewModel(
-    private val repository: MainRepository
+    private val useCase: MainUseCase
 ) : ViewModel() {
 
     private val _dataFlow: MutableStateFlow<ViewState<List<GithubData>>> =
@@ -26,7 +26,7 @@ class MainViewModel(
 
     fun fetchData() {
         viewModelScope.launch {
-            val viewState = when (val response = repository.getData()) {
+            val viewState = when (val response = useCase.getData()) {
                 is Response.Success -> {
                     ViewState.Success(response.data)
                 }
@@ -41,7 +41,7 @@ class MainViewModel(
 
     fun fetchDetailToggleState() {
         viewModelScope.launch {
-            val isEnabled = repository.isDetailToggleEnabled()
+            val isEnabled = useCase.isDetailToggleEnabled()
             _isDetailToggleEnabled.value = isEnabled
         }
     }
